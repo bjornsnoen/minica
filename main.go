@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jsha/minica/certutils"
+	"github.com/bjornsnoen/minica/certutils"
 )
 
 func main() {

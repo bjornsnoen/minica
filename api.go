@@ -3,7 +3,7 @@ package main
 import (
 	"C"
 
-	"github.com/jsha/minica/certutils"
+	"github.com/bjornsnoen/minica/certutils"
 )
 
 //export generateCertificate
