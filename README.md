@@ -1,3 +1,12 @@
+# FORK!
+This is a fork of [jsha/minica](https://github.com/jsha/minica)! Use that if
+you're looking for the cli tool to generate certificates, it might be ahead
+of this repository.
+
+This fork moves the logic into its own package and exposes the two functions
+needed to do the certificate generation, as well as exposing a basic C api.
+
+# About
 Minica is a simple CA intended for use in situations where the CA operator
 also operates each host where a certificate will be used. It automatically
 generates both a key and a certificate when asked to produce a certificate.
