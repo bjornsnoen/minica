@@ -40,7 +40,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.os }}
           goarch: ${{ matrix.arch }}
-          pre_command: "if [[ -v CGO_ENABLED ]] && [[ -v CC ]]; then apt-get update && apt-get install -y mingw-w64; fi"
+          pre_command: "if [[ -v CGO_ENABLED ]]; then apt-get update; if [[ -v CC ]]; then apt-get install -y mingw-w64; else apt-get install -y g++-multilib; fi; fi;"
 
       - name: compile and release library
         uses: wangyoucao577/go-release-action@v1.30
@@ -51,4 +51,4 @@ jobs:
           goarch: ${{ matrix.arch }}
           build_flags: "--buildmode=c-shared"
           binary_name: "minica.dll"
-          pre_command: "if [[ -v CGO_ENABLED ]] && [[ -v CC ]]; then apt-get update && apt-get install -y mingw-w64; fi"
+          pre_command: "if [[ -v CGO_ENABLED ]]; then apt-get update; if [[ -v CC ]]; then apt-get install -y mingw-w64; else apt-get install -y g++-multilib; fi; fi;"
