@@ -1,94 +1,34 @@
 on:
   release:
+    types: [published]
+
 name: "Release"
 
 jobs:
-  release-linux-386:
-    name: release linux/386
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: "386"
-          GOOS: linux
-          EXTRA_FILES: "LICENSE.txt"
+  release-artifacts:
+    name: Create release artifacts
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [linux, windows, darwin]
+        arch: ["386", amd64, arm]
+        exclude:
+          - os: windows
+            arch: arm
 
-  release-linux-amd64:
-    name: release linux/amd64
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: amd64
-          GOOS: linux
-          EXTRA_FILES: "LICENSE.txt"
-
-  release-linux-arm:
-    name: release linux/386
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: "arm"
-          GOOS: linux
-          EXTRA_FILES: "LICENSE.txt"
-
-  release-linux-arm64:
-    name: release linux/amd64
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: arm64
-          GOOS: linux
-          EXTRA_FILES: "LICENSE.txt"
-  release-darwin-amd64:
-    name: release darwin/amd64
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: amd64
-          GOOS: darwin
-          EXTRA_FILES: "LICENSE.txt"
-
-  release-windows-386:
-    name: release windows/386
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: "386"
-          GOOS: windows
-          EXTRA_FILES: "LICENSE.txt"
-
-  release-windows-amd64:
-    name: release windows/amd64
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: compile and release
-        uses: ngs/go-release.action@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOARCH: amd64
-          GOOS: windows
-          EXTRA_FILES: "LICENSE.txt"
+      - name: compile and release binary
+        uses: wangyoucao577/go-release-action@v1.30
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.os }}
+          goarch: ${{ matrix.arch }}
+      - name: compile and release library
+        uses: wangyoucao577/go-release-action@v1.30
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.os }}
+          goarch: ${{ matrix.arch }}
+          build_flags: "--buildmode=c-shared"
+          binary_name: "minica.dll"
