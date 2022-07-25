@@ -56,3 +56,11 @@ $ minica --domains foo.com
 # Wildcard
 $ minica --domains '*.foo.com'
 ```
+
+# C bindings
+Minica can be compiled to a shared library file, which exposes the functions defined in [api.go](api.go)
+To build as a shared library use the following command:
+```
+$ go build -o minica.dll --buildmode=c-shared
+```
+Look in [sample.py](sample.py) to see an example of how to use the generated library from python.
