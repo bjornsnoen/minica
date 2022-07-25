@@ -26,12 +26,25 @@ jobs:
       - name: Set up windows cross compilation
         if: ${{ matrix.os == 'windows' }}
         run: |
-          echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          case "${{ matrix.arch }}" in
+            "386") echo "CC=i686-w64-mingw32-gcc" >> $GITHUB_ENV ;;
+            "amd64") echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV ;;
+          esac
           echo "CGO_ENABLED=1" >> $GITHUB_ENV
+          echo "INSTALL_PACKAGES=mingw-w64" >> $GITHUB_ENV
 
-      - name: Set up environment for linux i386 dll building
+      - name: Set up environment for linux i386/arm dll building
         if: ${{ matrix.os == 'linux' }}
         run: |
+          case "${{ matrix.arch }}" in
+            'arm')
+              echo "INSTALL_PACKAGES=gccgo-6-arm-linux-gnueabi" >> $GITHUB_ENV
+              echo "CC=arm-linux-gnueabi-gcc-6" >> $GITHUB_ENV
+              ;;
+            '386')
+              echo "INSTALL_PACKAGES=g++-multilib" >> $GITHUB_ENV
+              ;;
+          esac
           echo "CGO_ENABLED=1" >> $GITHUB_ENV
 
       - name: compile and release binary
@@ -40,7 +53,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.os }}
           goarch: ${{ matrix.arch }}
-          pre_command: "if [[ -v CGO_ENABLED ]]; then apt-get update; if [[ -v CC ]]; then apt-get install -y mingw-w64; else apt-get install -y g++-multilib; fi; fi;"
+          pre_command: 'if [[ ! -z "${{ env.INSTALL_PACKAGES }}" ]]; then apt-get update; apt-get install -y "${{ env.INSTALL_PACKAGES }}"; fi'
 
       - name: compile and release library
         uses: wangyoucao577/go-release-action@v1.30
@@ -51,4 +64,4 @@ jobs:
           goarch: ${{ matrix.arch }}
           build_flags: "--buildmode=c-shared"
           binary_name: "minica.dll"
-          pre_command: "if [[ -v CGO_ENABLED ]]; then apt-get update; if [[ -v CC ]]; then apt-get install -y mingw-w64; else apt-get install -y g++-multilib; fi; fi;"
+          pre_command: 'if [[ ! -z "${{ env.INSTALL_PACKAGES }}" ]]; then apt-get update; apt-get install -y "${{ env.INSTALL_PACKAGES }}"; fi'
