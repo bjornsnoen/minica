@@ -26,12 +26,11 @@ jobs:
       - name: Set up windows cross compilation
         if: ${{ matrix.os == 'windows' }}
         run: |
-          sudo apt-get update && sudo apt-get install -y mingw-w64
           echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
           echo "CGO_ENABLED=1" >> $GITHUB_ENV
 
-      - name: Set up environment for windows dll building
-        if: ${{ matrix.os == 'linux' && matrix.arch == 'i386' }}
+      - name: Set up environment for linux i386 dll building
+        if: ${{ matrix.os == 'linux' }}
         run: |
           echo "CGO_ENABLED=1" >> $GITHUB_ENV
 
@@ -41,6 +40,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.os }}
           goarch: ${{ matrix.arch }}
+          pre_command: "if [[ -v CGO_ENABLED ]] && [[ -v CC ]]; then apt-get update && apt-get install -y mingw-w64; fi"
 
       - name: compile and release library
         uses: wangyoucao577/go-release-action@v1.30
@@ -51,3 +51,4 @@ jobs:
           goarch: ${{ matrix.arch }}
           build_flags: "--buildmode=c-shared"
           binary_name: "minica.dll"
+          pre_command: "if [[ -v CGO_ENABLED ]] && [[ -v CC ]]; then apt-get update && apt-get install -y mingw-w64; fi"
