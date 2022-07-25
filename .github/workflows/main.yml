@@ -4,6 +4,9 @@ on:
 
 name: "Release"
 
+env:
+  CGO_ENABLED: 1
+
 jobs:
   release-artifacts:
     name: Create release artifacts
@@ -22,6 +25,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@master
+
+      - name: Set up windows cross compilation
+        if: ${{ matrix.os == 'windows' }}
+        run: apt-get update && apt-get install -y mingw-w64
+      - name: Set up environment for windows dll building
+        if: ${{ matrix.os == 'windows' }}
+        run: |
+          echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+
       - name: compile and release binary
         uses: wangyoucao577/go-release-action@v1.30
         with:
@@ -30,6 +42,7 @@ jobs:
           goarch: ${{ matrix.arch }}
       - name: compile and release library
         uses: wangyoucao577/go-release-action@v1.30
+        if: ${{ matrix.os != 'darwin' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.os }}
